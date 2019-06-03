@@ -1,4 +1,5 @@
 const Users = require('../models').users;
+const UsersPhoto = require('../models').users_photo;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -80,7 +81,8 @@ module.exports = {
             .catch(error => res.status(400).send(error));
     },
     profile(req, res) {
-        const token = req.body.token;
+        console.log('req >', JSON.parse(req.query.token));
+        const token = JSON.parse(req.query.token);
         if (token && token !== null) {
             const decodedToken = jwt.verify(token, '1a2b3c4d5e6f7g8h9i0j');
             console.log('decodedToken ->', decodedToken);
@@ -97,6 +99,16 @@ module.exports = {
                         email: email
                     }
                 })
+                .then(user => {
+                    return user = {
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        username: user.username,
+                        email: user.email,
+                        birthday: user.birthday,
+                        gender: user.gender
+                    }
+                })
                 .then(user => res.status(200).send(user))
                 .catch(error => res.status(400).send(error));
 
@@ -104,6 +116,34 @@ module.exports = {
             res.status(200).send('-> profile token not found, you must login')
         }
 
+    },
+    profilephoto(req, res) {
+        console.log('>PROFILE PHOTO<');
+        console.log('req >', JSON.parse(req.query.token));
+        const token = JSON.parse(req.query.token);
+        if (token && token !== null) {
+            const decodedToken = jwt.verify(token, '1a2b3c4d5e6f7g8h9i0j');
+            console.log('decodedToken ->', decodedToken);
+            const id = decodedToken.id;
+            
+            return UsersPhoto
+            .findAll({
+                where: {
+                    userId: id
+                }
+            })
+            .then(photos => {
+                return photos = {
+                    id: photos.id,
+                    url: photos.photoUrl
+                }
+            })
+            .then(photos => res.status(200).send(photos))
+            .catch(error => res.status(400).send(error));
+
+        } else {
+            res.status(200).send('-> profile token not found, you must login')
+        }
     },
     login(req, res) {
         console.log('req.body >', req.body);
