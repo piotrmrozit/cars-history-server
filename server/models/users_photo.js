@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         }
     }, {
+        freezeTableName: true,
         classMethods: {
             associate: function (models) {
                 users.hasMany(models.users_photo, {

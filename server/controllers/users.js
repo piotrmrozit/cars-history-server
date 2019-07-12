@@ -3,7 +3,7 @@ const UsersPhoto = require('../models').users_photo;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const multer  = require('multer');
+const multer = require('multer');
 
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -81,11 +81,11 @@ module.exports = {
             .catch(error => res.status(400).send(error));
     },
     profile(req, res) {
-        console.log('req >', JSON.parse(req.query.token));
+        // console.log('req >', JSON.parse(req.query.token));
         const token = JSON.parse(req.query.token);
         if (token && token !== null) {
             const decodedToken = jwt.verify(token, '1a2b3c4d5e6f7g8h9i0j');
-            console.log('decodedToken ->', decodedToken);
+            // console.log('decodedToken ->', decodedToken);
 
             const id = decodedToken.id;
             const username = decodedToken.username;
@@ -119,27 +119,28 @@ module.exports = {
     },
     profilephoto(req, res) {
         console.log('>PROFILE PHOTO<');
-        console.log('req >', JSON.parse(req.query.token));
+        // console.log('req >', JSON.parse(req.query.token));
         const token = JSON.parse(req.query.token);
         if (token && token !== null) {
             const decodedToken = jwt.verify(token, '1a2b3c4d5e6f7g8h9i0j');
             console.log('decodedToken ->', decodedToken);
             const id = decodedToken.id;
-            
+            console.log('id >', id);
             return UsersPhoto
-            .findAll({
-                where: {
-                    userId: id
-                }
-            })
-            .then(photos => {
-                return photos = {
-                    id: photos.id,
-                    url: photos.photoUrl
-                }
-            })
-            .then(photos => res.status(200).send(photos))
-            .catch(error => res.status(400).send(error));
+                .findOne({
+                    where: {
+                        userId: id
+                    }
+                })
+                .then(photo => {
+                    console.log('photo', photo);
+                    return photo = {
+                        id: photo.id,
+                        url: photo.photoUrl
+                    }
+                })
+                .then(photo => res.status(200).send(photo))
+                .catch(error => res.status(400).send(error));
 
         } else {
             res.status(200).send('-> profile token not found, you must login')
@@ -158,12 +159,12 @@ module.exports = {
                 }
             }).then(function (user) {
                 if (!user) {
-                    return res.status(400).json({message: '-> user is not found'})
+                    return res.status(400).json({ message: '-> user is not found' })
                 } else {
                     const passwordHash = user.password;
                     if (!bcrypt.compareSync(password, passwordHash)) {
                         console.log('==> PASSWORD ERROR');
-                        return res.status(400).json({message: '-> password error'});
+                        return res.status(400).json({ message: '-> password error' });
                     } else {
                         console.log('==> PASSWORD OK');
                         return Users
@@ -175,7 +176,7 @@ module.exports = {
                             })
                             .then(user => {
                                 if (!user) {
-                                    res.status(200).json({message: '-> user is not found'})
+                                    res.status(200).json({ message: '-> user is not found' })
                                 } else {
                                     console.log('==> MAKE TOKEN');
                                     let token = jwt.sign({
@@ -224,7 +225,7 @@ module.exports = {
                 })
                 .then(user => {
                     if (!user) {
-                        res.status(200).json({message: '-> user is not found'})
+                        res.status(200).json({ message: '-> user is not found' })
                     } else {
                         console.log('user ->', user);
                         user.token = null;
@@ -237,10 +238,10 @@ module.exports = {
                 })
                 .catch(error => res.status(400).send(error));
         } else {
-            res.status(200).json({message: '-> logout token not found'})
+            res.status(200).json({ message: '-> logout token not found' })
         }
     },
-    edit(req, res){
+    edit(req, res) {
         console.log('req.body ->', req.body);
         const id = req.body.id;
         const username = req.body.username;
@@ -255,12 +256,12 @@ module.exports = {
 
         return Users
             .findOne({
-                where:{
+                where: {
                     id: id
                 }
-            }).then(user =>{
-                if(!user){
-                    res.status(400).json({message: '-> user not found'})
+            }).then(user => {
+                if (!user) {
+                    res.status(400).json({ message: '-> user not found' })
                 } else {
                     return user.update({
                         username: username,
@@ -268,7 +269,7 @@ module.exports = {
                         lastname: lastname,
                         gender: gender,
                         birthday: birthday
-                    }).then(user =>{
+                    }).then(user => {
                         res.status(200).json({
                             message: '-> edit OK',
                             user: {
@@ -284,12 +285,12 @@ module.exports = {
                 }
             }).catch(error => res.status(400).send(error));
     },
-    upload(req, res){
+    upload(req, res) {
         upload(req, res, function (err) {
-           if(err){
-               console.log('error ->', err);
-           } 
-           console.log('req.file >>>', req.file);
+            if (err) {
+                console.log('error ->', err);
+            }
+            console.log('req.file >>>', req.file);
 
             res.status(200).json({
                 message: '-> upload OK',
