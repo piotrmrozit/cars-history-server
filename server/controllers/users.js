@@ -242,13 +242,14 @@ module.exports = {
         }
     },
     edit(req, res) {
-        console.log('req.body ->', req.body);
-        const id = req.body.id;
+        console.log('>>> EDIT <<<');
+        console.log('req.body >', req.body);
         const username = req.body.username;
         const firstname = req.body.firstname;
         const lastname = req.body.lastname;
         const gender = req.body.gender;
         const birthday = req.body.birthday;
+        const email = req.body.email;
         // const image = req.body.image;
 
         // console.log('image ->', image);
@@ -257,9 +258,11 @@ module.exports = {
         return Users
             .findOne({
                 where: {
-                    id: id
+                    username: username,
+                    email: email
                 }
             }).then(user => {
+                console.log('user >', user)
                 if (!user) {
                     res.status(400).json({ message: '-> user not found' })
                 } else {
